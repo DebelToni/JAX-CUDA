@@ -21,13 +21,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-      cuda-tools-13-0 \
       cuda-nvcc-13-0 \
       cuda-cupti-dev-13-0 \
       cuda-gdb-13-0 \
+      cuda-cuobjdump-13-0 \
+      cuda-nvdisasm-13-0 \
       cuda-nvtx-13-0 \
-    && optional_cuda_tools="$(apt-cache search --names-only '^(nsight-compute|nsight-systems|cuda-sanitizer)' | cut -d' ' -f1 | tr '\n' ' ')" \
-    && if [ -n "$optional_cuda_tools" ]; then apt-get install -y --no-install-recommends $optional_cuda_tools; fi \
+    && optional_cuda_tools="$(apt-cache search --names-only '^(nsight-compute-2025|nsight-systems-2025|compute-sanitizer-13-0|cuda-sanitizer-13-0|cuda-nvprof-13-0)' | cut -d' ' -f1 | tr '\n' ' ')" \
+    && for pkg in $optional_cuda_tools; do apt-get install -y --no-install-recommends "$pkg" || true; done \
     && rm -rf /var/lib/apt/lists/* \
     && ln -sf /usr/local/cuda-13.0 /usr/local/cuda \
     && ncu_path="$(find /opt/nvidia -type f -name ncu 2>/dev/null | sort | head -n 1 || true)" \
