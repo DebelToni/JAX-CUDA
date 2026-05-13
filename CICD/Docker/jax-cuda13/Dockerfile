@@ -26,9 +26,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       cuda-cupti-dev-13-0 \
       cuda-gdb-13-0 \
       cuda-nvtx-13-0 \
-      cuda-sanitizer-api-13-0 \
-      nsight-compute-13-0 \
-      nsight-systems-13-0 \
+    && optional_cuda_tools="$(apt-cache search --names-only '^(nsight-compute|nsight-systems|cuda-sanitizer)' | cut -d' ' -f1 | tr '\n' ' ')" \
+    && if [ -n "$optional_cuda_tools" ]; then apt-get install -y --no-install-recommends $optional_cuda_tools; fi \
     && rm -rf /var/lib/apt/lists/* \
     && ln -sf /usr/local/cuda-13.0 /usr/local/cuda \
     && ncu_path="$(find /opt/nvidia -type f -name ncu 2>/dev/null | sort | head -n 1 || true)" \
