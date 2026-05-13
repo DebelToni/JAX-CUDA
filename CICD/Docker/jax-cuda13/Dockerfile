@@ -66,6 +66,8 @@ COPY --chown=root:root <<'BASH' /usr/local/bin/entrypoint.sh
 #!/usr/bin/env bash
 set -euo pipefail
 
+cd /
+
 APP_ROOT="${APP_ROOT:-/workspace}"
 REPO_NAME="${REPO_NAME:-JAX-CUDA}"
 REPO_URL="${REPO_URL:-https://github.com/DebelToni/JAX-CUDA}"
@@ -137,7 +139,7 @@ BASH
 
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-WORKDIR /workspace/JAX-CUDA
+WORKDIR /
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD []
