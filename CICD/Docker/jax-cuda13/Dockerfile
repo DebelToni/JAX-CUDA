@@ -20,6 +20,22 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       wget \
     && rm -rf /var/lib/apt/lists/*
 
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      cuda-tools-13-0 \
+      cuda-nvcc-13-0 \
+      cuda-cupti-dev-13-0 \
+      cuda-gdb-13-0 \
+      cuda-nvtx-13-0 \
+      cuda-sanitizer-api-13-0 \
+      nsight-compute-13-0 \
+      nsight-systems-13-0 \
+    && rm -rf /var/lib/apt/lists/* \
+    && ln -sf /usr/local/cuda-13.0 /usr/local/cuda \
+    && ncu_path="$(find /opt/nvidia -type f -name ncu 2>/dev/null | sort | head -n 1 || true)" \
+    && nsys_path="$(find /opt/nvidia -type f -name nsys 2>/dev/null | sort | head -n 1 || true)" \
+    && if [ -n "$ncu_path" ]; then ln -sf "$ncu_path" /usr/local/bin/ncu; fi \
+    && if [ -n "$nsys_path" ]; then ln -sf "$nsys_path" /usr/local/bin/nsys; fi
+
 ENV VENV_DIR=/opt/venv
 RUN python3 -m venv "$VENV_DIR" \
     && "$VENV_DIR/bin/python" -m pip install --upgrade pip setuptools wheel
@@ -27,7 +43,12 @@ RUN python3 -m venv "$VENV_DIR" \
 ENV PATH="$VENV_DIR/bin:$PATH" \
     VIRTUAL_ENV="$VENV_DIR" \
     PYTHONUNBUFFERED=1 \
-    JAX_PLATFORMS=cuda,cpu
+    JAX_PLATFORMS=cuda,cpu \
+    CUDA_HOME=/usr/local/cuda \
+    CUDA_PATH=/usr/local/cuda \
+    LD_LIBRARY_PATH=/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64
+
+ENV PATH="/usr/local/cuda/bin:/opt/nvidia/nsight-compute:/opt/nvidia/nsight-systems/bin:$PATH"
 
 RUN pip install --no-cache-dir --upgrade \
       "jax[cuda13]" \
@@ -36,11 +57,15 @@ RUN pip install --no-cache-dir --upgrade \
       orbax-checkpoint \
       flax \
       chex \
-      jaxtyping
+      jaxtyping \
+      pybind11
 
 RUN printf '%s\n' \
       'VIRTUAL_ENV=/opt/venv' \
-      'PATH=/opt/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin' \
+      'CUDA_HOME=/usr/local/cuda' \
+      'CUDA_PATH=/usr/local/cuda' \
+      'LD_LIBRARY_PATH=/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64' \
+      'PATH=/opt/venv/bin:/usr/local/cuda/bin:/opt/nvidia/nsight-compute:/opt/nvidia/nsight-systems/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin' \
       >> /etc/environment \
     && printf '%s\n' 'source /opt/venv/bin/activate || true' > /etc/profile.d/activate-venv.sh \
     && printf '%s\n' 'set -o vi' > /etc/profile.d/vi-mode.sh \
