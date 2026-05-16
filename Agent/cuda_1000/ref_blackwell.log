@@ -1,0 +1,14 @@
+Using checkpoint: /workspace/JAX-CUDA/Reference/smollm-135m.npz
+Detected vocab_size=49152 from checkpoint
+
+==================================================
+Technical note: In transformer language models, rotary position embeddings work by rotating query and key vectors in pairs. This helps attention layers represent relative positions because they are not directly related to the query.
+
+### Conclusion
+
+In this chapter, we explored the concept of transformer language models and their application in transformer language models. We learned about the transformer language model and its architecture, and we saw how it can be used to build transformer language models. We also learned about the importance of rotation embeddings in transformer language models and how they can be used to represent relative positions.
+
+In the next chapter, we will explore another popular transformer language model,
+==================================================
+
+[perf] prompt=29 gen=100 decode_only=0.1187s tok/s=842.56
